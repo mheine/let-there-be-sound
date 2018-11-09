@@ -8,4 +8,9 @@ response = client.synthesize_speech(
     VoiceId='Carmen'
 )
 
-print(response['AudioStream'].read()) 
+if "AudioStream" in response:
+    with closing(response["AudioStream"]) as stream:
+        data = stream.read()
+        fo = open("pollytest.mp3", "w+")
+        fo.write( data )
+        fo.close()
