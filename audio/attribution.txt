@@ -1,0 +1,2 @@
+nice_day.wav: https://www.youtube.com/user/AderuMoro
+hello.mp3: https://freesound.org/people/hauntedswkids/sounds/253387/
