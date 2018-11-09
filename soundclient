@@ -1,0 +1,22 @@
+#!/bin/bash -x
+echo Listening
+default=modemdialup.wav
+default=
+while true;do
+    name=""
+    name=$(curl -s http://ec2-54-93-34-68.eu-central-1.compute.amazonaws.com/rpi)
+    nam=""
+    if [[ -n $name ]];then
+	nam=$(basename "$name")
+	if [[ ! -r let-there-be-sound/audio/"$nam" ]];then
+	    nam=$default
+	fi
+    else
+	nam=$default
+    fi
+    omxplayer let-there-be-sound/audio/"$nam"
+#    omxplayer -o alsa let-there-be-sound/audio/"$nam"
+done
+
+
+
