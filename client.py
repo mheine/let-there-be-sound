@@ -13,7 +13,7 @@ with contextlib.redirect_stdout(None):
     # Just to get rid of pygames init print
     from pygame import mixer
 
-HOST = "ec2-54-93-34-68.eu-central-1.compute.amazonaws.com"
+HOST = "3.121.155.173"
 PORT = 80
 AUDIO_FOLDER = "audio"
 
