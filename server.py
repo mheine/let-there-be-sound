@@ -2,13 +2,32 @@ import socket
 import threading
 import signal
 import sys
+import os
 import traceback
 from os import listdir
 from os.path import isfile, join, splitext
+from slackclient import SlackClient
 
 HOST = "0.0.0.0"
 PORT = 80
 AUDIO_FOLDER = "audio"
+CHANNEL_NAME="@per.hellstrom"
+
+token_file = "slack_api_token"
+
+if not os.path.isfile(token_file):
+    print("File \"slack_api_token\" doesn't exist!")
+    print("Copy \"slack_api_token.example\", rename, then place your token in the file")
+    exit(1)
+else:
+    with open(token_file) as sf:
+        SLACK_API_TOKEN = sf.readline().strip()
+
+if not SLACK_API_TOKEN:
+    print("No SLACK_API_TOKEN available!")
+    exit(1)
+
+sc = SlackClient(SLACK_API_TOKEN)
 
 clients = []
 sounds = [[splitext(f)[0], f] for f in listdir(AUDIO_FOLDER) if isfile(join(AUDIO_FOLDER, f)) and f.endswith(".mp3")]
@@ -67,32 +86,36 @@ class ThreadedServer(object):
                 if path == "/slack":
                     try:
                         parameters = body.split("&")
+                        params = {}
                         for param in parameters:
-                            try:
-                                key, value = param.split("=")
-                                if key == "text":
-                                    if self.get_command(value):
-                                        client.send("Playing sound: %s" % value)
-                                        self.broadcast(client, self.get_command(value))
-                                        client.close()
-                                        return
-                                    else:
-                                        if value == "help":
-                                            print("Help command: %s (%s)" % (value, addr))
-                                            message = "Help for Soundboard:\r\n"
-                                        else:
-                                            print("Invalid sound: %s (%s)" % (value, addr))
-                                            message = "Invalid command: %s\r\n" % value
-                                        message += "Usage: `/soundboard command`\r\n"
-                                        message += "Allowed commands:\r\n"
-                                        for command in sounds:
-                                            message += "`%s`\r\n" % command[0]
-                                        client.send(message)
-                                        client.close()
-                                        return
-                            except Exception as e:
-                                print(e)
-                                traceback.print_exc()
+                            key, value = param.split("=")
+                            params[key] = value
+                        if "text" in params:
+                            value = params["text"]
+                            username = params["user_name"]
+                            if self.get_command(value):
+                                sc.api_call(
+                                    "chat.postMessage",
+                                    link_names=1,
+                                    channel=CHANNEL_NAME,
+                                    text="Playing sound: %s (Requested by @%s)" % (value, username)
+                                )
+                                client.send(str.encode("Playing your requested sound: %s" % (value)))
+                                self.broadcast(client, self.get_command(value))
+                                client.close()
+                                return
+                            else:
+                                if value == "help":
+                                    print("Sending help info to: %s" % addr)
+                                    message = "Help for Soundboard:\r\n"
+                                else:
+                                    print("Invalid sound: %s (%s)" % (value, addr))
+                                    message = "Invalid command: %s\r\n" % value
+                                message += "Usage: `/soundboard command`\r\n"
+                                message += "Allowed commands:\r\n"
+                                for command in sounds:
+                                    message += "`%s`\r\n" % command[0]
+                                client.send(str.encode(message))
                                 client.close()
                                 return
                     except Exception as e:
@@ -107,7 +130,7 @@ class ThreadedServer(object):
                         print("Client disconnected: %s (%s connected)" % (addr, len(clients)))
                         return
                     else:
-                        client.send(joinsound)
+                        client.send(str.encode(joinsound))
                         clients.append(client)
                         print("New client: %s (%s connected)" % (addr, len(clients)))
                 else:
