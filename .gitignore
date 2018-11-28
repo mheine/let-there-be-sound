@@ -1,3 +1,5 @@
 */node_modules
+__pycache__
 *~
 slack_api_token
+polly_audio_*.mp3

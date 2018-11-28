@@ -17,8 +17,9 @@ file_name="polly_audio.mp3"
 padded_file="polly_audio_padded.mp3"
 
 if "AudioStream" in response:
-    with closing(response["AudioStream"]) as stream:
-        data = stream.read()
+    audiostream = response["AudioStream"]
+    with closing(audiostream):
+        data = audiostream.read()
         fo = open(file_name, "w+")
         fo.write( data )
         fo.close()

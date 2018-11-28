@@ -3,10 +3,12 @@ import select
 import time
 import signal
 import sys
+import traceback
 from os import listdir
 from os.path import isfile, join
 from subprocess import call
 from playsound import playsound
+import polly_player
 
 import contextlib
 with contextlib.redirect_stdout(None):
@@ -57,14 +59,22 @@ while True:
     except Exception as e:
         print(e)
         break
-    if len(ready_to_read) > 0:
-        recv = conn.recv(2048)
-        data = recv.decode("utf-8")
-        if not data or data == "EOF":
-            print("EOF received, exiting!")
-            break
-        if data in sound_files:
-            print("Playing sound: %s" % data)
-            playsound(join(AUDIO_FOLDER, data))
-        else:
-            print("Couldn't find soundfile matching data: %s" % data)
+    try:
+        if len(ready_to_read) > 0:
+            recv = conn.recv(2048)
+            data = recv.decode("utf-8")
+            if not data or data == "EOF":
+                print("EOF received, exiting!")
+                break
+            if data in sound_files:
+                print("Playing sound: %s" % data)
+                playsound(join(AUDIO_FOLDER, data))
+            else:
+                print("Polly says: %s" % data)
+                polly_player.polly_say(data)
+    except Exception:
+        traceback.print_exc()
+        message = "GET /client HTTP/1.1\r\n\r\nEOF"
+        conn.send(str.encode(message))
+        conn.close()
+        break
