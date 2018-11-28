@@ -1,12 +1,10 @@
 import socket
 import select
-import time
 import signal
 import sys
 import traceback
 from os import listdir
 from os.path import isfile, join
-from subprocess import call
 from playsound import playsound
 import polly_player
 

@@ -1,8 +1,5 @@
 import socket
 import threading
-import signal
-import sys
-import os
 import traceback
 import random
 from urllib import parse
@@ -17,7 +14,7 @@ CHANNEL_NAME="@per.hellstrom"
 
 token_file = "slack_api_token"
 
-if not os.path.isfile(token_file):
+if not isfile(token_file):
     print("File \"slack_api_token\" doesn't exist!")
     print("Copy \"slack_api_token.example\", rename, then place your token in the file")
     exit(1)
