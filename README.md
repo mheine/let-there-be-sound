@@ -1,3 +1,3 @@
-### Jodu!
+## Let there be sound!
 
-Låt ljudet flöda.
+This is a soundboard for Slack, written in Python3 and hosted on AWS.
