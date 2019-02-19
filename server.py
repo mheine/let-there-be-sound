@@ -80,7 +80,11 @@ class ThreadedServer(object):
         for client in clients:
             if client == source:
                 continue
-            client.send(str.encode(message))
+            try:
+                client.send(str.encode(message))
+            except BrokenPipeError:
+                print("Dropping client: %s (Broken Pipe)" % client)
+                clients.remove(client)
 
     def listenToClient(self, client, address):
         addr = address[0]
