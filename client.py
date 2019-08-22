@@ -6,12 +6,14 @@ import traceback
 from os import listdir
 from os.path import isfile, join
 from playsound import playsound
+from time import sleep
 import polly_player
 
 import contextlib
 with contextlib.redirect_stdout(None):
     # Just to get rid of pygames init print
     from pygame import mixer
+    mixer.init()
 
 HOST = "3.121.155.173"
 PORT = 80
@@ -63,7 +65,10 @@ while True:
                 break
             elif data in sound_files:
                 print("Playing sound: %s" % data)
-                playsound(join(AUDIO_FOLDER, data))
+                mixer.music.load(join(AUDIO_FOLDER, data))
+                mixer.music.play()
+                while mixer.get_busy():
+                    sleep(0.1)
             else:
                 print("Polly says: %s" % data)
                 polly_player.polly_say(data)

@@ -6,6 +6,7 @@ from contextlib import closing, redirect_stdout
 # Just to get rid of pygames init print
 with redirect_stdout(None):
     from pygame import mixer
+    mixer.init()
 
 def polly_say(text):
     os.environ["AWS_PROFILE"] = "soundboard-polly"
@@ -26,5 +27,8 @@ def polly_say(text):
             pf.write(data)
             pf.flush()
         pf.close()
-        playsound(file_name)
+        mixer.music.load(file_name)
+        mixer.music.play()
+        while mixer.get_busy():
+            sleep(0.1)
         os.remove(file_name)
