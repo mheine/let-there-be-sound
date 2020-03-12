@@ -3,8 +3,8 @@ import select
 import signal
 import sys
 import traceback
-from os import listdir
-from os.path import isfile, join
+from os import listdir, chdir
+from os.path import isfile, join, abspath, dirname
 from playsound import playsound
 from time import sleep
 import polly_player
@@ -14,6 +14,9 @@ with contextlib.redirect_stdout(None):
     # Just to get rid of pygames init print
     from pygame import mixer
     mixer.init()
+
+SCRIPT_PATH = dirname(abspath(__file__))
+chdir(SCRIPT_PATH)
 
 HOST = "3.121.155.173"
 PORT = 80
